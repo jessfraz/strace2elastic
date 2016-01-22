@@ -12,4 +12,9 @@ Options:
   -c, --container   CONTAINER_NAME  Container name
 ```
 
+Just add [strace-process.sh](strace-process.sh) as a `PostStart` hook in your
+`runc` runtime config. See
+[jfrazelle/containers/notify-osd/runtime.json](https://github.com/jfrazelle/containers/blob/master/notify-osd/runtime.json#L87)
+as an example.
+
 Huge thanks to [dirtyharrycallahan/pystrace](https://github.com/dirtyharrycallahan/pystrace)
