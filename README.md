@@ -11,3 +11,5 @@ Options:
   -e, --elastichost HOST:PORT       Elastic search instance
   -c, --container   CONTAINER_NAME  Container name
 ```
+
+Huge thanks to [dirtyharrycallahan/pystrace](https://github.com/dirtyharrycallahan/pystrace)
