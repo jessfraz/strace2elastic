@@ -395,7 +395,9 @@ class StraceInputStream:
 				return_value = None
 				arguments_str = m_args_and_result.group(1)
 		if m_args_and_result == None:
-				raise Exception("Invalid line (line %d)" % self.line_no)
+				sys.stderr.write("Skipping offending line: %s\n" % line)
+				#raise Exception("Invalid line (line %d)" % self.line_no)
+				return self.next()
 
 
 		# Extract the arguments
