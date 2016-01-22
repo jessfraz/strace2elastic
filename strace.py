@@ -118,7 +118,7 @@ class StraceEntry:
 		self.return_value = return_value
 		self.category = self.__get_category()
 
-	
+
 	def __get_category(self):
 		# Should mmap() be in this category?
 		if self.syscall_name in ["read", "write", "open", "close", "lseek",
@@ -140,7 +140,7 @@ class StraceInputStream:
 	A strace input stream
 	'''
 
-	
+
 	def __init__(self, input):
 		'''
 		Initialize (open) the strace input stream from the given input (file
@@ -262,11 +262,11 @@ class StraceInputStream:
 		line = self.f_in.next()
 		if line is None:
 			raise StopIteration
-			
+
 		line = line.strip()
 		self.line_no += 1
 		pos_start = 0
-		
+
 		if line == "":
 			if self.line_no == 1:
 				raise Exception("The first line needs to be valid")
@@ -277,10 +277,10 @@ class StraceInputStream:
 				raise Exception("The first line needs to be valid")
 			else:
 				return self.next()
-		
-		
+
+
 		# Get the PID (if available)
-		
+
 		pid = None
 		m_pid = re_get_pid.match(line)
 		if self.line_no == 1:
@@ -291,18 +291,18 @@ class StraceInputStream:
 		if m_pid is not None:
 			pid = int(m_pid.group(1))
 			pos_start = len(m_pid.group(1)) + 1
-				
-		
+
+
 		# Signals
-		
+
 		if line.endswith("---"):
 			r = re_extract_signal.match(line, pos_start)
 			if r is not None:
 				return self.next()
-		
-		
+
+
 		# Unfinished and resumed syscalls
-		
+
 		if line.endswith("<unfinished ...>"):
 			r = re_extract_unfinished.match(line, pos_start)
 			if r is None:
@@ -310,7 +310,7 @@ class StraceInputStream:
 					% self.line_no)
 			self.unfinished_syscalls[pid] = r.group(1)
 			return self.next()
-		
+
 		r = re_extract_resumed.match(line, pos_start)
 		if r is not None:
 			was_unfinished = True
@@ -322,10 +322,10 @@ class StraceInputStream:
 			pos_start = 0
 		else:
 			was_unfinished = False
-			
-		
+
+
 		# Extract basic information
-		
+
 		r = re_extract.match(line, pos_start)
 		if r is not None:
 			timestamp = float(r.group(1))
@@ -346,12 +346,13 @@ class StraceInputStream:
 				args_and_result_str = r.group(3)
 				elapsed_time = None
 			else:
-				#sys.stderr.write("Offending line: %s\n" % line)
-				raise Exception("Invalid line (line %d)" % self.line_no)
-		
-		
+				sys.stderr.write("Skipping offending line: %s\n" % line)
+				#raise Exception("Invalid line (line %d)" % self.line_no)
+				return self.next()
+
+
 		# Extract the return value
-		
+
 		m_args_and_result \
 		  = re_extract_arguments_and_return_value_ok.match(args_and_result_str)
 		if m_args_and_result != None:
@@ -395,19 +396,19 @@ class StraceInputStream:
 				arguments_str = m_args_and_result.group(1)
 		if m_args_and_result == None:
 				raise Exception("Invalid line (line %d)" % self.line_no)
-		
-		
+
+
 		# Extract the arguments
-		
+
 		arguments = self.__parse_arguments(arguments_str)
-		
-		
+
+
 		# Finish
-		
+
 		return StraceEntry(pid, timestamp, was_unfinished, elapsed_time,
 						   syscall_name, arguments, return_value)
-	
-	
+
+
 	def close(self):
 		'''
 		Close the input stream (unless it is sys.stdin)
@@ -424,7 +425,7 @@ class StraceTracedProcess:
 	'''
 	A process in a strace output
 	'''
-	
+
 	def __init__(self, pid, name):
 		'''
 		Initialize the traced process object
@@ -442,7 +443,7 @@ class StraceFile:
 	A strace input stream
 	'''
 
-	
+
 	def __init__(self, input):
 		'''
 		Load the strace file contents from the given input (file name, file
@@ -460,11 +461,11 @@ class StraceFile:
 
 
 		# Process the file
-		
+
 		strace_stream = StraceInputStream(input)
-		
+
 		for entry in strace_stream:
-			
+
 			self.have_pids = strace_stream.have_pids
 			if entry.pid not in self.processes.keys():
 				self.processes[entry.pid] = StraceTracedProcess(entry.pid, None)
@@ -487,7 +488,7 @@ class StraceFile:
 				self.start_time = entry.timestamp
 			if self.last_timestamp < entry.timestamp:
 				self.last_timestamp = entry.timestamp
-			
+
 			entry_finish_time = entry.timestamp
 			if entry.elapsed_time is not None:
 				entry_finish_time += entry.elapsed_time
@@ -495,7 +496,7 @@ class StraceFile:
 				self.finish_time = entry_finish_time
 			if self.finish_time < entry_finish_time:
 				self.finish_time = entry_finish_time
-		
+
 		if self.start_time is not None:
 			self.elapsed_time = self.finish_time - self.start_time
 

@@ -104,9 +104,11 @@ def main(argv):
         sys.stderr.write("%s: %s\n" % (os.path.basename(sys.argv[0]), e))
         sys.exit(1)
 
+    if container is None or container == "":
+        sys.stderr.write("container name cannot be empty\n")
+        sys.exit(1)
 
-    # Convert to .csv
-
+    # Parse strace output and add to elastic search
     try:
         sys2elastic(input_file, container, elastic_host)
     except IOError as e:
